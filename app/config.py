@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
 class Settings(BaseSettings):
@@ -31,6 +31,4 @@ class Settings(BaseSettings):
     CAPTURE_N_FRAMES: int = 5
     THRESHOLD_MODE: str = "OTSU"
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)

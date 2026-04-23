@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime
 from typing import Any, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class OCRResult(BaseModel):
@@ -66,8 +66,7 @@ class InspectionResponse(BaseModel):
     processed_image_path: Optional[str] = None
     error_message: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SettingItem(BaseModel):

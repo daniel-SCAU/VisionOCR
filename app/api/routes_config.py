@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.deps import get_db, get_settings
 from app.schemas import SettingsResponse, SettingsUpdate, SettingItem
 from app.models import Setting
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -25,9 +25,9 @@ def update_config(payload: SettingsUpdate, db: Session = Depends(get_db)):
         row = db.query(Setting).filter(Setting.key == item.key).first()
         if row:
             row.value = item.value
-            row.updated_at = datetime.utcnow()
+            row.updated_at = datetime.now(timezone.utc)
         else:
-            db.add(Setting(key=item.key, value=item.value, updated_at=datetime.utcnow()))
+            db.add(Setting(key=item.key, value=item.value, updated_at=datetime.now(timezone.utc)))
     db.commit()
     rows = db.query(Setting).all()
     return SettingsResponse(settings=[SettingItem(key=r.key, value=r.value) for r in rows])
