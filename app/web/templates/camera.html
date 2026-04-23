@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Camera - VisionOCR{% endblock %}
+{% block content %}
+<h2>Camera</h2>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">Live Frame</div>
+            <div class="card-body text-center">
+                <img id="camera-frame" src="/camera/frame" class="img-fluid rounded" alt="Camera Frame" style="max-height:480px;">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header">Camera Controls</div>
+            <div class="card-body">
+                <button class="btn btn-primary w-100 mb-2" id="btn-refresh-frame">Refresh Frame</button>
+                <button class="btn btn-outline-secondary w-100 mb-2" id="btn-test-capture">Test Capture</button>
+                <button class="btn btn-outline-info w-100" id="btn-test-ocr">Test OCR</button>
+            </div>
+        </div>
+        <div id="camera-status" class="d-none alert"></div>
+        <div id="ocr-result-box" class="d-none card">
+            <div class="card-header">OCR Result</div>
+            <div class="card-body" id="ocr-result-content"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('btn-refresh-frame').addEventListener('click', () => {
+    document.getElementById('camera-frame').src = '/camera/frame?' + Date.now();
+});
+document.getElementById('btn-test-capture').addEventListener('click', async () => {
+    const r = await fetch('/camera/test-capture', {method: 'POST'});
+    const d = await r.json();
+    const el = document.getElementById('camera-status');
+    el.className = 'alert ' + (d.success ? 'alert-success' : 'alert-danger');
+    el.textContent = d.message + (d.width ? ` (${d.width}x${d.height})` : '');
+    el.classList.remove('d-none');
+});
+document.getElementById('btn-test-ocr').addEventListener('click', async () => {
+    const r = await fetch('/camera/test-ocr', {method: 'POST'});
+    if (r.ok) {
+        const d = await r.json();
+        const box = document.getElementById('ocr-result-box');
+        document.getElementById('ocr-result-content').innerHTML =
+            `<p><strong>Text:</strong> ${d.raw_text}</p><p><strong>Confidence:</strong> ${d.confidence.toFixed(1)}</p>`;
+        box.classList.remove('d-none');
+    } else {
+        const d = await r.json();
+        const el = document.getElementById('camera-status');
+        el.className = 'alert alert-danger';
+        el.textContent = d.detail || 'OCR test failed';
+        el.classList.remove('d-none');
+    }
+});
+</script>
+{% endblock %}

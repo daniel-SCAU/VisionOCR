@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}System - VisionOCR{% endblock %}
+{% block content %}
+<h2>System</h2>
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Health</div>
+            <div class="card-body" id="health-content">Loading...</div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Metrics</div>
+            <div class="card-body" id="metrics-content">Loading...</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function loadHealth() {
+    const r = await fetch('/health');
+    const d = await r.json();
+    document.getElementById('health-content').innerHTML =
+        `<p>Status: <strong>${d.status}</strong></p><p>Version: ${d.version}</p><p>Env: ${d.env}</p>`;
+}
+async function loadMetrics() {
+    const r = await fetch('/metrics');
+    const d = await r.json();
+    document.getElementById('metrics-content').innerHTML =
+        `<p>Total: ${d.total}</p><p>Passed: ${d.passed}</p><p>Failed: ${d.failed}</p>
+         <p>Errors: ${d.errors}</p><p>Pass Rate: ${(d.pass_rate*100).toFixed(1)}%</p>
+         <p>Avg Confidence: ${d.avg_confidence.toFixed(1)}</p>
+         <p>Avg Processing Time: ${d.avg_processing_time_ms.toFixed(0)} ms</p>`;
+}
+loadHealth();
+loadMetrics();
+</script>
+{% endblock %}

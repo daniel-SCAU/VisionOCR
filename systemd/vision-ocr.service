@@ -1,0 +1,15 @@
+[Unit]
+Description=VisionOCR Industrial OCR Service
+After=network.target
+
+[Service]
+Type=simple
+User=vision
+WorkingDirectory=/opt/vision-ocr
+ExecStart=/opt/vision-ocr/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+Environment=APP_ENV=production
+
+[Install]
+WantedBy=multi-user.target

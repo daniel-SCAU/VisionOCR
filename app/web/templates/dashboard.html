@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - VisionOCR{% endblock %}
+{% block content %}
+<h2>Dashboard</h2>
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Inspections</h5>
+                <p class="card-text fs-2" id="metric-total">—</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Pass Rate</h5>
+                <p class="card-text fs-2" id="metric-pass-rate">—</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">Failed</h5>
+                <p class="card-text fs-2" id="metric-failed">—</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-secondary">
+            <div class="card-body">
+                <h5 class="card-title">Avg Confidence</h5>
+                <p class="card-text fs-2" id="metric-conf">—</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mb-3">
+    <button class="btn btn-success btn-lg" id="btn-trigger">&#9654; Trigger Inspection</button>
+</div>
+<div id="last-result" class="d-none alert"></div>
+<h4>Recent Inspections</h4>
+<table class="table table-striped table-sm">
+    <thead><tr><th>#</th><th>Time</th><th>Status</th><th>Date</th><th>Batch</th><th>Confidence</th></tr></thead>
+    <tbody id="recent-table-body"></tbody>
+</table>
+{% endblock %}
+{% block scripts %}
+<script>
+async function loadMetrics() {
+    const r = await fetch('/metrics');
+    const d = await r.json();
+    document.getElementById('metric-total').textContent = d.total;
+    document.getElementById('metric-pass-rate').textContent = (d.pass_rate * 100).toFixed(1) + '%';
+    document.getElementById('metric-failed').textContent = d.failed;
+    document.getElementById('metric-conf').textContent = d.avg_confidence.toFixed(1);
+}
+async function loadRecent() {
+    const r = await fetch('/inspections?limit=10');
+    const rows = await r.json();
+    const tbody = document.getElementById('recent-table-body');
+    tbody.innerHTML = '';
+    for (const row of rows) {
+        const tr = document.createElement('tr');
+        const statusClass = row.status === 'PASS' ? 'text-success' : (row.status === 'FAIL' ? 'text-danger' : 'text-warning');
+        tr.innerHTML = `<td><a href="/inspections/${row.id}/detail">${row.id}</a></td>
+            <td>${new Date(row.timestamp).toLocaleString()}</td>
+            <td class="${statusClass} fw-bold">${row.status}</td>
+            <td>${row.date_text || ''}</td>
+            <td>${row.batch_text || ''}</td>
+            <td>${row.confidence != null ? row.confidence.toFixed(1) : ''}</td>`;
+        tbody.appendChild(tr);
+    }
+}
+document.getElementById('btn-trigger').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-trigger');
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
+    try {
+        const r = await fetch('/inspect', {method: 'POST'});
+        const d = await r.json();
+        const el = document.getElementById('last-result');
+        el.className = 'alert ' + (d.status === 'PASS' ? 'alert-success' : (d.status === 'FAIL' ? 'alert-danger' : 'alert-warning'));
+        el.textContent = `Result: ${d.status} | Date: ${d.date_text || 'N/A'} | Batch: ${d.batch_text || 'N/A'} | Confidence: ${d.confidence != null ? d.confidence.toFixed(1) : 'N/A'}`;
+        el.classList.remove('d-none');
+        loadMetrics();
+        loadRecent();
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '▶ Trigger Inspection';
+    }
+});
+loadMetrics();
+loadRecent();
+setInterval(() => { loadMetrics(); loadRecent(); }, 10000);
+</script>
+{% endblock %}
