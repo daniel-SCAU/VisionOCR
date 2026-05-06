@@ -36,7 +36,7 @@ For local access, you can still use `http://127.0.0.1:8000`.
 To find your server IP on Linux, run `hostname -I`.
 
 > Security note: Binding to `0.0.0.0` exposes the service on all network interfaces.
-> In production, restrict access with firewall rules and/or place the app behind a reverse proxy with TLS.
+> In production, enforce authentication/authorization, restrict access with firewall rules, and/or place the app behind a reverse proxy with TLS.
 
 ## Running Tests
 ```bash
