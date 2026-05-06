@@ -52,24 +52,7 @@ pytest tests/ -x -q
 Use this to run OCR on a local image file:
 
 ```bash
-python - <<'PY'
-import cv2
-from app.config import get_settings
-from app.services import preprocess
-from app.services.ocr import get_ocr_backend
-
-# Replace with your file (example: ./test_image.jpg)
-img = cv2.imread("./test_image.jpg")
-if img is None:
-    raise SystemExit("Image not found.")
-
-settings = get_settings()
-# Applies ROI + thresholding + morphology pipeline before OCR.
-processed = preprocess.run_pipeline(img, settings.model_dump())
-result = get_ocr_backend(settings).recognize(processed)
-print("Text:", result.raw_text)
-print("Confidence:", result.confidence)
-PY
+python scripts/test_image.py ./test_image.jpg
 ```
 
 ## API Endpoints
