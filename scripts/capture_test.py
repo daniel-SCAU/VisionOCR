@@ -6,7 +6,7 @@ import cv2
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.config import get_settings
+from app.deps import get_settings
 from app.services.acquisition import get_camera_backend
 from app.core.utils import ensure_dir, safe_filename
 
