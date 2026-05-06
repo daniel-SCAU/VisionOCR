@@ -28,10 +28,10 @@ pip install -e ".[dev]"
 python scripts/migrate.py
 
 # Run API server
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 0.0.0.0 --reload
 ```
 
-Open `http://127.0.0.1:8000` after startup.
+Open `http://<server-ip>:8000` after startup.
 
 ## Running Tests
 ```bash
