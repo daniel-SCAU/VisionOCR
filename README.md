@@ -40,7 +40,7 @@ For local access, you can still use `http://127.0.0.1:8000`.
 To find your server IP on Linux, run `hostname -I`.
 
 > Security note: Binding to `0.0.0.0` exposes the service on all network interfaces.
-> This project does not enable authentication/authorization by default. Do not expose this service to untrusted networks unless you add auth controls first; also restrict access with firewall rules and/or place the app behind a reverse proxy with TLS.
+> Review **Security Considerations** above before exposing this service beyond localhost.
 
 ## Running Tests
 ```bash
