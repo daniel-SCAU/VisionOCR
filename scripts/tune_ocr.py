@@ -184,6 +184,7 @@ def main() -> None:
             f"{stats['avg_conf']:>7.2f}  {stats['p10_conf']:>6.2f}  {stats['p50_conf']:>6.2f}  {stats['p90_conf']:>6.2f}  "
             f"{stats['date_rate'] * 100:>5.1f}  {stats['batch_rate'] * 100:>6.1f} {stats['full_rate'] * 100:>5.1f}"
         )
+        # Both terms are on a 0-100 scale: parse-completeness (% full hits) + mean confidence.
         score = (stats["full_rate"] * 100.0) + stats["avg_conf"]
         if score > best_score:
             best_score = score

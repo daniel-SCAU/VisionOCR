@@ -122,6 +122,7 @@ def run_pipeline(img: np.ndarray, settings: dict[str, Any]) -> np.ndarray:
     out = morphology_open(out)
     out = resize_upscale(
         out,
+        # Keep lowercase fallback for backward compatibility with older config payloads.
         float(settings.get("UPSCALE_FACTOR", settings.get("upscale_factor", 2.0))),
     )
     return out
