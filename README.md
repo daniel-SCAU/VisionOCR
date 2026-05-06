@@ -14,6 +14,7 @@ Industrial-grade OCR inspection application for Linux.
 
 ## Security Considerations
 - This project does not implement authentication/authorization by default.
+- **WARNING:** Running on `0.0.0.0` without added auth controls makes the service accessible to anyone on reachable networks, which can allow unauthorized OCR use and access to stored inspection/image data.
 - Before exposing the app on a network, add auth controls and restrict access with firewall rules and/or a TLS reverse proxy.
 
 ## Linux Install & Run
