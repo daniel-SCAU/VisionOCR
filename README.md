@@ -12,16 +12,54 @@ Industrial-grade OCR inspection application for Linux.
 - FastAPI REST API with Jinja2 web dashboard
 - Systemd service unit for production deployment
 
-## Quick Start
+## Linux Install & Run
 ```bash
+# Ubuntu/Debian system deps
+sudo apt update
+sudo apt install -y python3 python3-venv tesseract-ocr
+# Requires Python >= 3.11 (see pyproject.toml). Tesseract 4+ is recommended.
+
+# Project setup
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -e ".[dev]"
+
+# Init database
 python scripts/migrate.py
+
+# Run API server
 uvicorn app.main:app --reload
 ```
+
+Open `http://127.0.0.1:8000` after startup.
 
 ## Running Tests
 ```bash
 pytest tests/ -x -q
+```
+
+## Test an Image (Linux)
+Use this to run OCR on a local image file:
+
+```bash
+python - <<'PY'
+import cv2
+from app.config import get_settings
+from app.services import preprocess
+from app.services.ocr import get_ocr_backend
+
+# Replace with your file (example: ./test_image.jpg)
+img = cv2.imread("./test_image.jpg")
+if img is None:
+    raise SystemExit("Image not found.")
+
+settings = get_settings()
+# Applies ROI + thresholding + morphology pipeline before OCR.
+processed = preprocess.run_pipeline(img, settings.model_dump())
+result = get_ocr_backend(settings).recognize(processed)
+print("Text:", result.raw_text)
+print("Confidence:", result.confidence)
+PY
 ```
 
 ## API Endpoints
