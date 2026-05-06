@@ -12,6 +12,10 @@ Industrial-grade OCR inspection application for Linux.
 - FastAPI REST API with Jinja2 web dashboard
 - Systemd service unit for production deployment
 
+## Security Considerations
+- This project does not enable authentication/authorization by default.
+- Before exposing the app on a network, add auth controls and restrict access with firewall rules and/or a TLS reverse proxy.
+
 ## Linux Install & Run
 ```bash
 # Ubuntu/Debian system deps
