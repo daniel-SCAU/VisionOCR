@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     OCR_PSM: int = 6
     OCR_WHITELIST: str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ./-"
-    DATE_REGEX: str = r"(\b(?:\d{2}[./-]\d{2}[./-]\d{2,4}|\d{4}[./-]\d{2}[./-]\d{2}|\d{6,8})\b)"
+    DATE_REGEX: str = r"\b(?:\d{2}[./-]\d{2}[./-]\d{2,4}|\d{4}[./-]\d{2}[./-]\d{2}|\d{6,8})\b"
     BATCH_REGEX: str = r"\b([A-Z0-9]{2,4}[-/]?[A-Z0-9]{3,8})\b"
     CAPTURE_MODE: str = "SINGLE"
     CAPTURE_N_FRAMES: int = 5

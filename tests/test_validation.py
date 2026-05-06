@@ -22,6 +22,11 @@ def test_parse_date_iso():
     assert result == "2025-06-12"
 
 
+def test_parse_date_without_capture_group():
+    result = parse_date_text("EXP 2025-06-12", r"\b\d{4}-\d{2}-\d{2}\b")
+    assert result == "2025-06-12"
+
+
 def test_parse_date_none():
     result = parse_date_text("no date here", DATE_REGEX)
     assert result is None

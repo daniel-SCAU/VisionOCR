@@ -46,6 +46,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--whitelist", help="Override OCR_WHITELIST.")
     parser.add_argument("--language", help="Override OCR_LANGUAGE.")
     parser.add_argument("--min-confidence", type=float, help="Override MIN_CONFIDENCE for reporting.")
+    parser.add_argument(
+        "--full-rate-weight",
+        type=float,
+        default=1.0,
+        help="Weight for full parse hit-rate when ranking modes.",
+    )
+    parser.add_argument(
+        "--confidence-weight",
+        type=float,
+        default=1.0,
+        help="Weight for average confidence when ranking modes.",
+    )
     return parser.parse_args()
 
 
@@ -184,8 +196,10 @@ def main() -> None:
             f"{stats['avg_conf']:>7.2f}  {stats['p10_conf']:>6.2f}  {stats['p50_conf']:>6.2f}  {stats['p90_conf']:>6.2f}  "
             f"{stats['date_rate'] * 100:>5.1f}  {stats['batch_rate'] * 100:>6.1f} {stats['full_rate'] * 100:>5.1f}"
         )
-        # Both terms are on a 0-100 scale: parse-completeness (% full hits) + mean confidence.
-        score = (stats["full_rate"] * 100.0) + stats["avg_conf"]
+        score = (
+            args.full_rate_weight * (stats["full_rate"] * 100.0)
+            + args.confidence_weight * stats["avg_conf"]
+        )
         if score > best_score:
             best_score = score
             best_mode = mode

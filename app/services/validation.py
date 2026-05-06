@@ -9,7 +9,11 @@ logger = logging.getLogger(__name__)
 def parse_date_text(raw_text: str, date_regex: str) -> Optional[str]:
     try:
         m = re.search(date_regex, raw_text)
-        return m.group(1) if m else None
+        if not m:
+            return None
+        if m.lastindex and m.lastindex >= 1:
+            return m.group(1)
+        return m.group(0)
     except re.error as exc:
         logger.error("Invalid date regex: %s", exc)
         return None
@@ -18,7 +22,11 @@ def parse_date_text(raw_text: str, date_regex: str) -> Optional[str]:
 def parse_batch_text(raw_text: str, batch_regex: str) -> Optional[str]:
     try:
         m = re.search(batch_regex, raw_text)
-        return m.group(1) if m else None
+        if not m:
+            return None
+        if m.lastindex and m.lastindex >= 1:
+            return m.group(1)
+        return m.group(0)
     except re.error as exc:
         logger.error("Invalid batch regex: %s", exc)
         return None
