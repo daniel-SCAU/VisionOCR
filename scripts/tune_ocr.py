@@ -12,6 +12,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.deps import get_settings
+from app.core.exceptions import OCRExecutionError
 from app.services import preprocess, validation
 from app.services.ocr import get_ocr_backend
 
@@ -89,6 +90,7 @@ def evaluate_images(files: list[Path], settings_dict: dict[str, Any], mode: str)
     batch_hits = 0
     full_hits = 0
     processed = 0
+    failed = 0
 
     for image_path in files:
         img = cv2.imread(str(image_path))
@@ -97,7 +99,11 @@ def evaluate_images(files: list[Path], settings_dict: dict[str, Any], mode: str)
         local = dict(settings_dict)
         local["THRESHOLD_MODE"] = mode
         pre = preprocess.run_pipeline(img, local)
-        res = ocr.recognize(pre)
+        try:
+            res = ocr.recognize(pre)
+        except OCRExecutionError:
+            failed += 1
+            continue
         date_text = validation.parse_date_text(res.raw_text, local["DATE_REGEX"])
         batch_text = validation.parse_batch_text(res.raw_text, local["BATCH_REGEX"])
         confidences.append(float(res.confidence))
@@ -109,6 +115,7 @@ def evaluate_images(files: list[Path], settings_dict: dict[str, Any], mode: str)
     if processed == 0:
         return {
             "count": 0.0,
+            "failed": float(failed),
             "avg_conf": 0.0,
             "p10_conf": 0.0,
             "p50_conf": 0.0,
@@ -121,6 +128,7 @@ def evaluate_images(files: list[Path], settings_dict: dict[str, Any], mode: str)
     conf_arr = np.array(confidences, dtype=np.float64)
     return {
         "count": float(processed),
+        "failed": float(failed),
         "avg_conf": float(conf_arr.mean()),
         "p10_conf": float(np.percentile(conf_arr, 10)),
         "p50_conf": float(np.percentile(conf_arr, 50)),
@@ -164,7 +172,7 @@ def main() -> None:
     print(f"OCR: lang={settings_dict['OCR_LANGUAGE']} psm={settings_dict['OCR_PSM']}")
     print("")
     print("Mode comparison:")
-    print("mode      count   avg_conf   p10     p50     p90   date%  batch% full%")
+    print("mode      count fail  avg_conf   p10     p50     p90   date%  batch% full%")
     print("-" * 72)
 
     best_mode = None
@@ -172,7 +180,7 @@ def main() -> None:
     for mode in modes:
         stats = evaluate_images(samples, settings_dict, mode)
         print(
-            f"{mode:<9} {int(stats['count']):>5}   "
+            f"{mode:<9} {int(stats['count']):>5} {int(stats['failed']):>4}  "
             f"{stats['avg_conf']:>7.2f}  {stats['p10_conf']:>6.2f}  {stats['p50_conf']:>6.2f}  {stats['p90_conf']:>6.2f}  "
             f"{stats['date_rate'] * 100:>5.1f}  {stats['batch_rate'] * 100:>6.1f} {stats['full_rate'] * 100:>5.1f}"
         )
