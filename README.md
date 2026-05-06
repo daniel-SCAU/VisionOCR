@@ -12,6 +12,11 @@ Industrial-grade OCR inspection application for Linux.
 - FastAPI REST API with Jinja2 web dashboard
 - Systemd service unit for production deployment
 
+## Security Considerations
+- This project does not implement authentication/authorization by default.
+- **WARNING:** Running on `0.0.0.0` without added auth controls makes the service accessible to anyone on reachable networks, which can allow unauthorized OCR use and access to stored inspection/image data.
+- Before exposing the app on a network, add auth controls and restrict access with firewall rules and/or a TLS reverse proxy.
+
 ## Linux Install & Run
 ```bash
 # Ubuntu/Debian system deps
@@ -28,10 +33,15 @@ pip install -e ".[dev]"
 python scripts/migrate.py
 
 # Run API server
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 0.0.0.0 --reload
 ```
 
-Open `http://127.0.0.1:8000` after startup.
+Open `http://<server-ip>:8000` after startup.
+For local access, you can still use `http://127.0.0.1:8000`.
+To find your server IP on Linux, run `hostname -I`.
+
+> Security note: Binding to `0.0.0.0` exposes the service on all network interfaces.
+> Review **Security Considerations** above before exposing this service beyond localhost.
 
 ## Running Tests
 ```bash

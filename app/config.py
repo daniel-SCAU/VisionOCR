@@ -3,7 +3,7 @@ from pydantic import Field
 
 class Settings(BaseSettings):
     APP_ENV: str = "development"
-    HOST: str = "127.0.0.1"
+    HOST: str = "0.0.0.0"
     PORT: int = 8000
     DATABASE_URL: str = "sqlite:///./db/vision.db"
     IMAGE_STORAGE_PATH: str = "./images"
