@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# Database
+db/*.db
+db/*.db-shm
+db/*.db-wal
+
+# Logs
+logs/
+*.log
+
+# Test cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Images (runtime artifacts)
+images/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary test images
+test_images/

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}History - VisionOCR{% endblock %}
+{% block content %}
+<h2>Inspection History</h2>
+<div class="row mb-3">
+    <div class="col-auto">
+        <select class="form-select form-select-sm" id="filter-status">
+            <option value="">All</option>
+            <option value="PASS">PASS</option>
+            <option value="FAIL">FAIL</option>
+            <option value="ERROR">ERROR</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-sm btn-outline-primary" id="btn-load">Refresh</button>
+    </div>
+</div>
+<table class="table table-hover table-sm">
+    <thead class="table-dark">
+        <tr><th>#</th><th>Timestamp</th><th>Status</th><th>Date Text</th><th>Batch Text</th><th>Confidence</th><th>Time (ms)</th></tr>
+    </thead>
+    <tbody id="history-tbody"></tbody>
+</table>
+<nav>
+    <ul class="pagination" id="pagination"></ul>
+</nav>
+{% endblock %}
+{% block scripts %}
+<script>
+let currentPage = 0;
+const PAGE_SIZE = 50;
+async function loadHistory(skip=0, status='') {
+    let url = `/inspections?skip=${skip}&limit=${PAGE_SIZE}`;
+    if (status) url += `&status=${status}`;
+    const r = await fetch(url);
+    const rows = await r.json();
+    const tbody = document.getElementById('history-tbody');
+    tbody.innerHTML = '';
+    for (const row of rows) {
+        const statusClass = row.status === 'PASS' ? 'text-success' : (row.status === 'FAIL' ? 'text-danger' : 'text-warning');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><a href="/inspections/${row.id}/detail">${row.id}</a></td>
+            <td>${new Date(row.timestamp).toLocaleString()}</td>
+            <td class="${statusClass} fw-bold">${row.status}</td>
+            <td>${row.date_text || ''}</td>
+            <td>${row.batch_text || ''}</td>
+            <td>${row.confidence != null ? row.confidence.toFixed(1) : ''}</td>
+            <td>${row.processing_time_ms || ''}</td>`;
+        tbody.appendChild(tr);
+    }
+}
+document.getElementById('btn-load').addEventListener('click', () => {
+    currentPage = 0;
+    loadHistory(0, document.getElementById('filter-status').value);
+});
+document.getElementById('filter-status').addEventListener('change', () => {
+    currentPage = 0;
+    loadHistory(0, document.getElementById('filter-status').value);
+});
+loadHistory();
+</script>
+{% endblock %}

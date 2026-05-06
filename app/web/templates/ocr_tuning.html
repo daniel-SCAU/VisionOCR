@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}OCR Tuning - VisionOCR{% endblock %}
+{% block content %}
+<h2>OCR Tuning</h2>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">Configuration</div>
+            <div class="card-body">
+                <div id="config-form"></div>
+                <button class="btn btn-primary mt-2" id="btn-save-config">Save Configuration</button>
+                <div id="save-status" class="mt-2 d-none alert"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Live Test</div>
+            <div class="card-body">
+                <button class="btn btn-success w-100 mb-3" id="btn-run-test">Run Test Inspection</button>
+                <div id="test-result" class="d-none alert"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const OCR_KEYS = ['OCR_PSM', 'OCR_LANGUAGE', 'OCR_WHITELIST', 'MIN_CONFIDENCE', 'THRESHOLD_MODE', 'DEFAULT_ROI_X', 'DEFAULT_ROI_Y', 'DEFAULT_ROI_W', 'DEFAULT_ROI_H', 'DATE_REGEX', 'BATCH_REGEX'];
+let currentSettings = {};
+
+async function loadConfig() {
+    const r = await fetch('/config');
+    const d = await r.json();
+    for (const s of d.settings) { currentSettings[s.key] = s.value; }
+    const form = document.getElementById('config-form');
+    form.innerHTML = '';
+    for (const key of OCR_KEYS) {
+        const val = currentSettings[key] || '';
+        form.innerHTML += `<div class="mb-2"><label class="form-label">${key}</label>
+            <input class="form-control form-control-sm" id="cfg-${key}" value="${val}"></div>`;
+    }
+}
+
+document.getElementById('btn-save-config').addEventListener('click', async () => {
+    const settings = OCR_KEYS.map(k => ({key: k, value: document.getElementById('cfg-' + k).value}));
+    const r = await fetch('/config', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({settings})});
+    const el = document.getElementById('save-status');
+    el.className = 'alert ' + (r.ok ? 'alert-success' : 'alert-danger');
+    el.textContent = r.ok ? 'Saved.' : 'Save failed.';
+    el.classList.remove('d-none');
+});
+
+document.getElementById('btn-run-test').addEventListener('click', async () => {
+    const r = await fetch('/inspect', {method: 'POST'});
+    const d = await r.json();
+    const el = document.getElementById('test-result');
+    el.className = 'alert ' + (d.status === 'PASS' ? 'alert-success' : (d.status === 'FAIL' ? 'alert-danger' : 'alert-warning'));
+    el.innerHTML = `<strong>${d.status}</strong><br>Text: ${d.raw_text || 'N/A'}<br>Date: ${d.date_text || 'N/A'}<br>Batch: ${d.batch_text || 'N/A'}<br>Confidence: ${d.confidence != null ? d.confidence.toFixed(1) : 'N/A'}`;
+    el.classList.remove('d-none');
+});
+
+loadConfig();
+</script>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Inspection #{{ inspection_id }} - VisionOCR{% endblock %}
+{% block content %}
+<h2>Inspection #{{ inspection_id }}</h2>
+<a href="/history" class="btn btn-outline-secondary btn-sm mb-3">← Back to History</a>
+<div id="detail-content">
+    <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function loadDetail() {
+    const r = await fetch('/inspections/{{ inspection_id }}');
+    if (!r.ok) {
+        document.getElementById('detail-content').innerHTML = '<div class="alert alert-danger">Inspection not found.</div>';
+        return;
+    }
+    const d = await r.json();
+    const statusClass = d.status === 'PASS' ? 'success' : (d.status === 'FAIL' ? 'danger' : 'warning');
+    let html = `<div class="alert alert-${statusClass}"><strong>${d.status}</strong></div>
+    <table class="table table-sm table-bordered w-auto">
+    <tr><th>ID</th><td>${d.id}</td></tr>
+    <tr><th>Timestamp</th><td>${new Date(d.timestamp).toLocaleString()}</td></tr>
+    <tr><th>Raw Text</th><td><code>${d.raw_text || ''}</code></td></tr>
+    <tr><th>Date Text</th><td>${d.date_text || ''}</td></tr>
+    <tr><th>Batch Text</th><td>${d.batch_text || ''}</td></tr>
+    <tr><th>Confidence</th><td>${d.confidence != null ? d.confidence.toFixed(2) : ''}</td></tr>
+    <tr><th>Camera</th><td>${d.camera_name || ''}</td></tr>
+    <tr><th>Processing Time</th><td>${d.processing_time_ms != null ? d.processing_time_ms + ' ms' : ''}</td></tr>
+    <tr><th>Error</th><td>${d.error_message || ''}</td></tr>
+    </table>`;
+    if (d.image_path) {
+        html += `<h5>Raw Image</h5><img src="/images/${d.id}?kind=raw" class="img-fluid rounded" style="max-height:360px;">`;
+    }
+    if (d.processed_image_path) {
+        html += `<h5 class="mt-3">Processed Image</h5><img src="/images/${d.id}?kind=processed" class="img-fluid rounded" style="max-height:360px;">`;
+    }
+    document.getElementById('detail-content').innerHTML = html;
+}
+loadDetail();
+</script>
+{% endblock %}
