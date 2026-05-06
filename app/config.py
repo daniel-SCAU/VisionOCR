@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     IMAGE_STORAGE_PATH: str = "./images"
     CAMERA_BACKEND: str = "opencv"
     CAMERA_DEVICE_ID: int = 0
-    CAMERA_DEVICE_PATH: str = ""  # e.g. /dev/video0 — overrides CAMERA_DEVICE_ID when set
+    CAMERA_DEVICE_PATH: str = "/dev/video0"  # preferred Linux USB camera default; overrides CAMERA_DEVICE_ID when set
     CAMERA_WIDTH: int = 1920
     CAMERA_HEIGHT: int = 1080
     CAMERA_EXPOSURE: float = -6.0
