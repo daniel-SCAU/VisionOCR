@@ -55,6 +55,33 @@ Use this to run OCR on a local image file:
 python scripts/test_image.py ./test_image.jpg
 ```
 
+## Improve OCR Results (Practical Tuning Workflow)
+1. Tighten ROI (`DEFAULT_ROI_X/Y/W/H`) so OCR sees only the date/code print area.
+2. Compare threshold modes (`THRESHOLD_MODE=OTSU|ADAPTIVE|GLOBAL`) on the same sample set.
+3. Stabilize capture quality (fixed lighting/focus) and tune `CAMERA_EXPOSURE`, `CAMERA_GAIN`, `CAMERA_WIDTH`, `CAMERA_HEIGHT`.
+4. For noisy scenes, enable multi-frame capture with `CAPTURE_MODE=BEST_OF_N` or `MEDIAN_FUSION` and tune `CAPTURE_N_FRAMES`.
+5. Tune Tesseract layout and character constraints using `OCR_PSM`, `OCR_WHITELIST`, and `OCR_LANGUAGE`.
+6. Refine `DATE_REGEX` and `BATCH_REGEX` to match real line formats.
+7. Calibrate `MIN_CONFIDENCE` from measured confidence distributions (good vs bad samples), not guesswork.
+8. Re-validate iteratively with `python scripts/test_image.py ./test_image.jpg` and `/camera/test-ocr`.
+
+### Batch evaluation helper
+Use the tuning script to compare preprocessing modes and estimate confidence thresholds:
+
+```bash
+python scripts/tune_ocr.py \
+  --samples-dir ./samples/all \
+  --good-dir ./samples/good \
+  --bad-dir ./samples/bad \
+  --modes OTSU,ADAPTIVE,GLOBAL
+```
+
+Optional ROI / OCR overrides can be provided directly:
+
+```bash
+python scripts/tune_ocr.py --samples-dir ./samples/all --roi-x 120 --roi-y 80 --roi-w 560 --roi-h 180 --psm 7
+```
+
 ## API Endpoints
 - `GET /health` — Health check
 - `GET /metrics` — Inspection metrics

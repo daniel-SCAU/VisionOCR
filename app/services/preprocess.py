@@ -47,7 +47,7 @@ def threshold_global(img: np.ndarray, thresh_value: int = 127, max_value: int = 
 
 def threshold_adaptive(img: np.ndarray, block_size: int = 11, C: int = 2) -> np.ndarray:
     gray = to_grayscale(img)
-    bs = block_size if block_size % 2 == 1 else block_size + 1
+    bs = max(3, block_size if block_size % 2 == 1 else block_size + 1)
     return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                   cv2.THRESH_BINARY, bs, C)
 
@@ -109,12 +109,19 @@ def run_pipeline(img: np.ndarray, settings: dict[str, Any]) -> np.ndarray:
 
     threshold_mode = settings.get("THRESHOLD_MODE", "OTSU").upper()
     if threshold_mode == "ADAPTIVE":
-        out = threshold_adaptive(out)
+        out = threshold_adaptive(
+            out,
+            int(settings.get("THRESHOLD_ADAPTIVE_BLOCK_SIZE", 11)),
+            int(settings.get("THRESHOLD_ADAPTIVE_C", 2)),
+        )
     elif threshold_mode == "GLOBAL":
-        out = threshold_global(out)
+        out = threshold_global(out, int(settings.get("THRESHOLD_GLOBAL_VALUE", 127)))
     else:
         out = threshold_otsu(out)
 
     out = morphology_open(out)
-    out = resize_upscale(out, float(settings.get("upscale_factor", 2.0)))
+    out = resize_upscale(
+        out,
+        float(settings.get("UPSCALE_FACTOR", settings.get("upscale_factor", 2.0))),
+    )
     return out

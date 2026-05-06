@@ -137,3 +137,33 @@ def test_run_pipeline():
     out = run_pipeline(img, settings)
     assert len(out.shape) == 2
     assert out.dtype == np.uint8
+
+
+def test_run_pipeline_uses_upscale_factor_setting():
+    img = make_bgr(120, 120)
+    settings = {
+        "DEFAULT_ROI_X": 0,
+        "DEFAULT_ROI_Y": 0,
+        "DEFAULT_ROI_W": 60,
+        "DEFAULT_ROI_H": 60,
+        "THRESHOLD_MODE": "OTSU",
+        "UPSCALE_FACTOR": 3.0,
+    }
+    out = run_pipeline(img, settings)
+    assert out.shape == (180, 180)
+
+
+def test_run_pipeline_global_threshold_value():
+    img = np.full((40, 40), 120, dtype=np.uint8)
+    settings = {
+        "DEFAULT_ROI_X": 0,
+        "DEFAULT_ROI_Y": 0,
+        "DEFAULT_ROI_W": 40,
+        "DEFAULT_ROI_H": 40,
+        "THRESHOLD_MODE": "GLOBAL",
+        "THRESHOLD_GLOBAL_VALUE": 200,
+        "UPSCALE_FACTOR": 1.0,
+    }
+    out = run_pipeline(img, settings)
+    assert out.shape == (40, 40)
+    assert np.all(out == 0)
