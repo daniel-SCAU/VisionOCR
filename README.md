@@ -17,6 +17,7 @@ Industrial-grade OCR inspection application for Linux.
 # Ubuntu/Debian system deps
 sudo apt update
 sudo apt install -y python3 python3-venv tesseract-ocr
+# Requires Python >= 3.11 (see pyproject.toml). Tesseract 4+ is recommended.
 
 # Project setup
 python3 -m venv .venv
@@ -53,6 +54,7 @@ if img is None:
     raise SystemExit("Image not found.")
 
 settings = get_settings()
+# Applies ROI + thresholding + morphology pipeline before OCR.
 processed = preprocess.run_pipeline(img, settings.model_dump())
 result = get_ocr_backend(settings).recognize(processed)
 print("Text:", result.raw_text)
