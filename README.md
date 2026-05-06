@@ -47,7 +47,8 @@ from app.config import get_settings
 from app.services import preprocess
 from app.services.ocr import get_ocr_backend
 
-img = cv2.imread("/absolute/path/to/your/image.jpg")
+# Replace with your file (example: ./test_image.jpg)
+img = cv2.imread("./test_image.jpg")
 if img is None:
     raise SystemExit("Image not found.")
 
