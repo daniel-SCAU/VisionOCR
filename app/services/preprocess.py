@@ -47,6 +47,7 @@ def threshold_global(img: np.ndarray, thresh_value: int = 127, max_value: int = 
 
 def threshold_adaptive(img: np.ndarray, block_size: int = 11, C: int = 2) -> np.ndarray:
     gray = to_grayscale(img)
+    # OpenCV adaptive threshold requires an odd neighborhood size >= 3.
     bs = max(3, block_size if block_size % 2 == 1 else block_size + 1)
     return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                   cv2.THRESH_BINARY, bs, C)
@@ -122,7 +123,7 @@ def run_pipeline(img: np.ndarray, settings: dict[str, Any]) -> np.ndarray:
     out = morphology_open(out)
     out = resize_upscale(
         out,
-        # Keep lowercase fallback for backward compatibility with older config payloads.
+        # TODO: remove lowercase fallback after all clients migrate to UPSCALE_FACTOR.
         float(settings.get("UPSCALE_FACTOR", settings.get("upscale_factor", 2.0))),
     )
     return out

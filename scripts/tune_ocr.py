@@ -16,6 +16,8 @@ from app.core.exceptions import OCRExecutionError
 from app.services import preprocess, validation
 from app.services.ocr import get_ocr_backend
 
+TABLE_SEPARATOR_WIDTH = 77
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Compare OCR preprocessing modes and calibrate confidence.")
@@ -179,13 +181,15 @@ def main() -> None:
         raise SystemExit("No valid threshold modes were provided.")
 
     print(f"Samples: {len(samples)} images")
-    print(f"ROI: x={settings_dict['DEFAULT_ROI_X']} y={settings_dict['DEFAULT_ROI_Y']} "
-          f"w={settings_dict['DEFAULT_ROI_W']} h={settings_dict['DEFAULT_ROI_H']}")
+    print(
+        f"ROI: x={settings_dict['DEFAULT_ROI_X']} y={settings_dict['DEFAULT_ROI_Y']} "
+        f"w={settings_dict['DEFAULT_ROI_W']} h={settings_dict['DEFAULT_ROI_H']}"
+    )
     print(f"OCR: lang={settings_dict['OCR_LANGUAGE']} psm={settings_dict['OCR_PSM']}")
     print("")
     print("Mode comparison:")
     print("mode      count fail  avg_conf   p10     p50     p90   date%  batch% full%")
-    print("-" * 72)
+    print("-" * TABLE_SEPARATOR_WIDTH)
 
     best_mode = None
     best_score = -1.0
