@@ -9,8 +9,9 @@ class Settings(BaseSettings):
     IMAGE_STORAGE_PATH: str = "./images"
     CAMERA_BACKEND: str = "opencv"
     CAMERA_DEVICE_ID: int = 0
-    CAMERA_WIDTH: int = 1280
-    CAMERA_HEIGHT: int = 720
+    CAMERA_DEVICE_PATH: str = ""  # e.g. /dev/video0 — overrides CAMERA_DEVICE_ID when set
+    CAMERA_WIDTH: int = 1920
+    CAMERA_HEIGHT: int = 1080
     CAMERA_EXPOSURE: float = -6.0
     CAMERA_GAIN: float = 0.0
     DEFAULT_ROI_X: int = 0
